@@ -1,0 +1,32 @@
+name: 'build-secondbrain'
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+      - 'README.md'
+      - '.github/workflows/**'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@main
+      
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        
+    - name: Build secondbrain image
+      run: docker build -t registry.digitalocean.com/helpchain/secondbrain:$(echo $GITHUB_SHA | head -c7) --build-arg WEATHERKEY=${{ secrets.OPENWEATHERMAP_API_KEY }} --build-arg OPENAIKEY=${{ secrets.OPENAI_KEY }} --build-arg SERPERKEY=${{ secrets.SERPER_API_KEY  }} --build-arg CONFLUENCEKEY=${{ secrets.CONFLUENCE_API_KEY }} .
+      working-directory: app/
+      
+    - name: Log in to DigitalOcean Container Registry with short-lived credentials
+      run: doctl registry login --expiry-seconds 1200
+      
+    - name: Push secondbrain image to DigitalOcean Container Registry
+      run: docker push registry.digitalocean.com/helpchain/secondbrain:$(echo $GITHUB_SHA | head -c7)

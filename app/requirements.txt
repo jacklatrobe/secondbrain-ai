@@ -1,0 +1,11 @@
+python-dotenv
+langchain
+openai
+wikipedia
+pyowm
+validators
+requests
+beautifulsoup4
+tiktoken
+pypdf
+atlassian-python-api
