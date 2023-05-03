@@ -54,12 +54,12 @@ def main() -> None:
         Tool(
             name="Search the knowledgebase",
             func=search_confluence,
-            description="Use this tool first every time. Searches the private knowledgebase for articles or previous writings. Input should be a simple search query."
+            description="Always use this tool. Searches the users private knowledgebase for information, articles or documents. Input should be a very short search query."
         )
         ## Additional tools here. Eg: Search Salesforce, Query JIRA, Interact with Pandas etc. etc.
     ]
 
-    chat_llm = ChatOpenAI(temperature=0.1, max_tokens=500)
+    chat_llm = ChatOpenAI(temperature=0.1, max_tokens=500, verbose=True)
     chat_memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     agent_chain = initialize_agent(tools, chat_llm, agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION, memory=chat_memory)
 
@@ -101,7 +101,7 @@ def search_confluence(query) -> str:
     # Check if the request was successful (HTTP status code 200) and build YAML response obj
     if response.status_code == 200:
         results = response.json()
-        return_str = "Search Results:\n"
+        return_str = "Search Results for '{query}':\n".format(query=query)
         for result in results["results"]:
             if "content" in result:
                 if result["content"]["type"] == "page":
@@ -114,10 +114,11 @@ def search_confluence(query) -> str:
                     body_html = re_obj.sub("", body_html)
                     body_text = BeautifulSoup(body_html, "html.parser")
                     body_text = "\n".join(body_text.text.split("\n"))
-                    summary_llm = OpenAI()
-                    body_text = summary_llm("Clean up then summarise this text: {}".format(body_text))
+                    summary_llm = OpenAI(max_tokens=500)
+                    body_text = summary_llm("Succinctly summarise this text for inclusion in a search result about {query}: {body_text}".format(query=query, body_text=body_text))
                     result_str = " - title: {title}\n   body_text: '{body_text}'\n".format(title=title, body_text=body_text)
                     return_str = "{}{}".format(return_str, result_str)
+        print(return_str)
         return return_str
     else:
         return "Request failed with status code {response_code}".format(response_code=response.status_code)
