@@ -5,7 +5,7 @@ from langchain.llms import OpenAI
 import logging
 
 def handle_query(query) -> str:
-    return handle_response(input(query))
+    return handle_response(input("{}\n> ".format(query)))
 
 def handle_response(response) -> str:
     logging.info("Human Response: {}".format(response))
