@@ -2,12 +2,16 @@
 
 from langchain import OpenAI
 import logging
+import pyttsx3
 from researcher import Researcher
 
 class Manager:
     def __init__(self):
         # Create an object to record the conversation
         self.conversation = []
+
+        # Use TTS? - Currently windows only
+        self.use_tts = False
 
         # How many chat iterations should we do?
         self.max_chats = 10
@@ -34,8 +38,21 @@ class Manager:
                 "Message" : message
             }
         )
+
         logging.info("New message from {agent}: {message}".format(agent=type, message=message))
         print("{agent}: {message}\n".format(agent=type, message=message))
+        if self.use_tts:
+            # Select a TTS voice
+            if type == "AgentOne":
+                voice_id = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_DAVID_11.0"
+            else:
+                voice_id = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0"
+            # Speak the message using local TTS
+            engine = pyttsx3.init();
+            engine.setProperty('voice', voice_id)
+            engine.setProperty('rate', 220)
+            engine.say(message, type);
+            engine.runAndWait() ;
 
     def create_chat_history(self, depth):
         # Assemble a history of the last chats
@@ -69,25 +86,27 @@ class Manager:
         while conversation_continue:
             # Ask Actor 1 for a response and record it
             prompt = """
-            You are an AI called {name}. You are having a conversation with another AI. The topic or goal is: {topic}
+            You are an AI called {name}. You are having a conversation with AgentTwo. Answer any questions it asks, or pose challenges to it's hypotheticals.
             
+            The topic of conversation is: {topic}
+
             Chat History:
             {history}
             
-            Provide a response to the other AI that responds to them and poses challenges or follow-up questions that further explore the topic or goal:
-            """.format(name=self.agent_one.name, topic=topic, history=self.create_chat_history(5))
+            What is your question, answer or response to the other AI:
+            """.format(name=self.agent_one.name, topic=topic, history=self.create_chat_history(2))
             response1 = self.agent_one.run(prompt)
             self.record_message(message=response1, type=self.agent_one.name)
 
             # Ask Actor 2 for another response and record it
             prompt = """
-            You are an AI called {name}. You are having a conversation with another AI. The topic or goal is: {topic}
+            You are an AI called {name}. You are having a conversation with another AI. Ask it creative questions and pose out-of-the-box hypotheticals to test it's capabilities.
             
             Chat History:
             {history}
             
-            Provide a response to the other AI that responds to them and poses challenges or follow-up questions that further explore the topic or goal:
-            """.format(name=self.agent_two.name, topic=topic, history=self.create_chat_history(5))
+            What is your question, answer or response to the other AI:
+            """.format(name=self.agent_two.name, topic=topic, history=self.create_chat_history(2))
             response2 = self.agent_two.run(prompt)
             self.record_message(message=response2, type=self.agent_two.name)
 
@@ -97,6 +116,6 @@ class Manager:
             else:
                 response = response2
         
-        finale = "Save a summary of our conversation to Confluence which includes this chat history:\n{history}".format(history=self.create_chat_history(5))
+        finale = "Save our conversation to Confluence:\n{history}".format(history=self.create_chat_history(7))
         response = self.agent_one.run(finale)
         self.record_message(message=response, type=self.agent_one.name)

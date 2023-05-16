@@ -29,11 +29,11 @@ class Researcher:
         wikipedia = WikipediaAPIWrapper(top_k_results=2)
         googler = GoogleSerperAPIWrapper()
         weather = OpenWeatherMapAPIWrapper()
-        llm = OpenAI(temperature=0, max_tokens=200)
+        llm = OpenAI(temperature=0)
         math_llm = LLMMathChain.from_llm(llm)
-        conv_summary_llm = OpenAI(temperature=0.2, max_tokens=750)
+        conv_summary_llm = OpenAI(temperature=0.5, max_tokens=500)
         
-        self.chat_llm = ChatOpenAI(temperature=0.3, max_tokens=750)
+        self.chat_llm = ChatOpenAI(temperature=0.4, max_tokens=200)
         self.chat_memory = ConversationSummaryMemory(llm=conv_summary_llm, memory_key="chat_history", return_messages=True)
         self.tools = [
             Tool(
