@@ -10,7 +10,39 @@ import logging
 from bs4 import BeautifulSoup
 from langchain import OpenAI
 from langchain.agents import Tool
+from nltk import download as nltk_download
+from nltk.tokenize import word_tokenize
+nltk_download('stopwords')
+nltk_download('punkt')
+from nltk.corpus import stopwords
 
+# Check for required ENV variables
+if(os.environ.get("CONFLUENCE_CLIENT_ID") == None):
+    msg = "CONFLUENCE_CLIENT_ID not set as env variable"
+    logging.error(msg)
+    raise ValueError(msg)
+
+if(os.environ.get("CONFLUENCE_API_KEY") == None):
+    msg = "CONFLUENCE_API_KEY not set as env variable"
+    logging.error(msg)
+    raise ValueError(msg)
+
+if(os.environ.get("CONFLUENCE_SITE_NAME") == None):
+    msg = "CONFLUENCE_SITE_NAME not set as env variable"
+    logging.error(msg)
+    raise ValueError(msg)
+
+# Splits strings into chunks of X length
+def split_str(seq, chunk, skip_tail=False):
+    lst = []
+    if chunk <= len(seq):
+        lst.extend([seq[:chunk]])
+        lst.extend(split_str(seq[chunk:], chunk, skip_tail))
+    elif not skip_tail and seq:
+        lst.extend([seq])
+    return lst
+
+# Returns a YAML list of search results
 def search_confluence(query) -> str:
     # Replace these variables with your own values
     atlassian_email = os.environ.get("CONFLUENCE_CLIENT_ID")
@@ -27,7 +59,7 @@ def search_confluence(query) -> str:
     params = {
         "limit": 2,
         "cql": "title ~ '{query}' or text ~ '{query}'".format(query=query),
-        #"space": "SNB",
+        "space": "SNB",
     }
 
     # Set the headers, including the encoded credentials for authorization
@@ -57,7 +89,13 @@ def search_confluence(query) -> str:
                     body_html = re_obj.sub("", body_html)
                     body_text = BeautifulSoup(body_html, "html.parser")
                     body_text = "\n".join(body_text.text.split("\n"))
-                    summary_llm = OpenAI(max_tokens=750)
+                    tokens = word_tokenize(body_text.lower())
+                    english_stopwords = stopwords.words('english')
+                    tokens_wo_stopwords = [t for t in tokens if t not in english_stopwords]
+                    body_text = " ".join(tokens_wo_stopwords)
+                    if len(body_text) > 2000:
+                        body_text = split_str(body_text, 2000, True)[0]
+                    summary_llm = OpenAI(max_tokens=500)
                     body_text = summary_llm("Re-write the following text into a single large paragraph, retaining as much information as possible: {body_text}".format(body_text=body_text))
                     result_str = " - title: {title}\n   body_text: '{body_text}'\n".format(title=title, body_text=body_text)
                     return_str = "{}{}".format(return_str, result_str)
@@ -126,6 +164,7 @@ def save_to_confluence(text) -> str:
         print(response.text)
         return "Unable to save article. Request failed with status code {response_code}".format(response_code=response.status_code)
     
+# Define the two functions as LangChain tools for agent use
 SearchConfluenceTool = Tool(
     name = "Search the knowledgebase",
     func = search_confluence,
