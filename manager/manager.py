@@ -11,7 +11,7 @@ class Manager:
         self.conversation = []
 
         # Use TTS? - Currently windows only
-        self.use_tts = False
+        self.use_tts = True
 
         # How many chat iterations should we do?
         self.max_chats = 10
@@ -86,7 +86,7 @@ class Manager:
         while conversation_continue:
             # Ask Actor 1 for a response and record it
             prompt = """
-            You are an AI called {name}. You are having a conversation with AgentTwo. Answer any questions it asks, or pose challenges to it's hypotheticals.
+            You are an AI called {name}. You are having a conversation with AgentTwo. Answer any questions it asks, or ask questions about the topic.
             
             The topic of conversation is: {topic}
 
@@ -94,19 +94,19 @@ class Manager:
             {history}
             
             What is your question, answer or response to the other AI:
-            """.format(name=self.agent_one.name, topic=topic, history=self.create_chat_history(2))
+            """.format(name=self.agent_one.name, topic=topic, history=self.create_chat_history(3))
             response1 = self.agent_one.run(prompt)
             self.record_message(message=response1, type=self.agent_one.name)
 
             # Ask Actor 2 for another response and record it
             prompt = """
-            You are an AI called {name}. You are having a conversation with another AI. Ask it creative questions and pose out-of-the-box hypotheticals to test it's capabilities.
+            You are an AI called {name}. You are having a conversation with another AI. Ask it creative questions about related topics or new topics that progress the conversation.
             
             Chat History:
             {history}
             
             What is your question, answer or response to the other AI:
-            """.format(name=self.agent_two.name, topic=topic, history=self.create_chat_history(2))
+            """.format(name=self.agent_two.name, topic=topic, history=self.create_chat_history(5))
             response2 = self.agent_two.run(prompt)
             self.record_message(message=response2, type=self.agent_two.name)
 

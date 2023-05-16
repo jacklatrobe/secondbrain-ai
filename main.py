@@ -17,6 +17,7 @@ if(os.environ.get("OPENAI_API_KEY") == None):
 def main():
     logging.info("SecondBrain starting up")
     manager = Manager()
+    manager.use_tts = True
     manager.run()
     logging.info("SecondBrain shutting down")
 
