@@ -1,6 +1,9 @@
 # SecondBrain-AI
 
-SecondBrain is an intelligent virtual assistant powered by Python, LangChain, and OpenAI. Its purpose is to serve as a functional second brain to help manage a variety of workloads, increase productivity, and reduce cognitive overload.
+SecondBrain is an intelligent virtual assistant powered by Python, LangChain, and OpenAI. Its purpose is to serve as a functional second brain to help manage a variety of workloads, increase productivity, and reduce cognitive overload. Right now, we are at in an experimental phase where we are conducting theory of mind experiments by getting SecondBrain to talk to itself - a necessary precursor to developing a true understanding of what someone else really wants is being able to create a simple mental model of them in your own head, called a Theory of Mind in psychology.
+
+## Example
+![secondbrain demo gif](./docs/demo.gif)
 
 ## Purpose
 
