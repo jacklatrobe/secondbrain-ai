@@ -1,5 +1,5 @@
 ## secondbrain: Second brain and theory of mind experiments with LLMs and LangChain
-## File: secondbrain/confluence.py
+## File: secondbrain_tools/confluence.py
 
 import os
 import re

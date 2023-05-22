@@ -1,5 +1,5 @@
 ## secondbrain: Second brain and theory of mind experiments with LLMs and LangChain
-## File: app/human.py
+## File: secondbrain_tools/human_prompts.py
 
 from langchain.agents import Tool
 
