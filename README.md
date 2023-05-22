@@ -1,6 +1,9 @@
 # SecondBrain-AI
 
-SecondBrain is an intelligent virtual assistant powered by Python, LangChain, and OpenAI. Its purpose is to serve as a functional second brain to help manage a variety of workloads, increase productivity, and reduce cognitive overload.
+SecondBrain is an intelligent virtual assistant powered by Python, LangChain, and OpenAI. Its purpose is to serve as a functional second brain to help manage a variety of workloads, increase productivity, and reduce cognitive overload. Right now, we are at in an experimental phase where we are conducting theory of mind experiments by getting SecondBrain to talk to itself - a necessary precursor to developing a true understanding of what someone else really wants is being able to create a simple mental model of them in your own head, called a Theory of Mind in psychology.
+
+## Example
+![secondbrain demo gif](./docs/demo.gif)
 
 ## Purpose
 
@@ -26,11 +29,9 @@ A Second Brain is an external, digital repository where you store the ideas, ins
 
 The SecondBrain project is organized into several directories, each with a specific purpose:
 
-- `./manager/`: This directory contains the Python code and Dockerfile for the manager. The manager is a LangChain agent that receives initial requests from the user and dispatches the content editor to assemble a response.
+- `./manager/`: This directory contains the Python code for the manager. The manager is a LangChain agent that receives initial requests from the user and dispatches the researcher agents to assemble a response and host the conversation.
 
-- `./editor/`: This directory contains the Python code and Dockerfile for the editor. The editor is the AI component that uses multiple instances of a researcher to generate a well-written response for a query.
-
-- `./researcher/`: This directory contains the Python code and Dockerfile for the researcher. The researcher is a LangChain agent that can be passed a number of Tools to perform searches, lookups or API requests needed to gather information for researched responses back to the editor.
+- `./researcher/`: This directory contains the Python code and Dockerfile for the researcher. The researcher is a LangChain agent that can be passed a number of Tools to perform searches, lookups or API requests needed to gather information for researched responses back to the manager and user.
 
 - `./tracing/`: This directory sets up the LangChain tracing server for debugging agent execution chains.
 
